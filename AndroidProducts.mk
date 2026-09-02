@@ -4,4 +4,4 @@
 #
 
 PRODUCT_MAKEFILES := \
-    $(LOCAL_DIR)/lineage_amethyst.mk
+    $(LOCAL_DIR)/custom_amethyst.mk
