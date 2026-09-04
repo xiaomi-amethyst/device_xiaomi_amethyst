@@ -43,6 +43,7 @@ lib_fixups: lib_fixups_user_type = {
         'vendor.qti.hardware.qccsyshal@1.0',
         'vendor.qti.hardware.qccsyshal@1.1',
         'vendor.qti.hardware.qccsyshal@1.2',
+        'vendor.qti.hardware.camera.postproc@1.0',
         'vendor.qti.hardware.wifidisplaysession_aidl-V1-ndk',
         'vendor.qti.ImsRtpService-V1-ndk',
         'vendor.qti.imsrtpservice@3.0',
@@ -262,6 +263,16 @@ blob_fixups: blob_fixups_user_type = {
 
     'vendor/lib64/libcameraopt.so': blob_fixup()
         .add_needed('libprocessgroup_shim.so'),
+
+    'vendor/lib64/libcamera2ndk_vendor.so': blob_fixup()
+        .replace_needed(
+            'android.frameworks.cameraservice.device-V1-ndk.so',
+            'android.frameworks.cameraservice.device-V3-ndk.so',
+        )
+        .replace_needed(
+            'android.frameworks.cameraservice.service-V1-ndk.so',
+            'android.frameworks.cameraservice.service-V3-ndk.so',
+        ),
 
     'vendor/lib64/libmicamera_hal_core.so': blob_fixup()
         .add_needed('libui_shim.so')
