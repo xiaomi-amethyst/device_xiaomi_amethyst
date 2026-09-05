@@ -37,20 +37,18 @@ allow devicesettings_app {
 }:service_manager find;
 
 # Allow devicesettings_app read and write /data/data subdirectory
-# Allow devicesettings_app read and write /data/data subdirectory
 allow devicesettings_app system_app_data_file:dir create_dir_perms;
 allow devicesettings_app system_app_data_file:{ file lnk_file } create_file_perms;
 
 # Allow binder communication with gpuservice
 binder_call(devicesettings_app, gpuservice)
 
-# Allow devicesettings_app to read and write to cgroup/sysfs_leds/sysfs_thermal
+# Allow devicesettings_app to read and write to cgroup/sysfs_thermal
 allow devicesettings_app sysfs_leds:dir search;
 allow devicesettings_app sysfs_thermal:dir r_dir_perms;
 allow devicesettings_app sysfs_thermal:file rw_file_perms;
 allow devicesettings_app {
   cgroup
-  sysfs_leds
   sysfs_thermal
 }:{ file lnk_file } rw_file_perms;
 
