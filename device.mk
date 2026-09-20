@@ -10,7 +10,7 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/generic_ramdisk.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/emulated_storage.mk)
 
 # Dalvik vm configs
-$(call inherit-product, frameworks/native/build/phone-xhdpi-6144-dalvik-heap.mk)
+$(call inherit-product, frameworks/native/build/phone-xhdpi-8192-dalvik-heap.mk)
 
 # pKVM
 $(call inherit-product, packages/modules/Virtualization/apex/product_packages.mk)
@@ -148,7 +148,7 @@ PRODUCT_PACKAGES += \
 
 # Euicc
 PRODUCT_PACKAGES += \
-    XiaomiEsimSwitcher \
+    AmethystEsimSwitcher \
     XiaomiEuicc
 
 PRODUCT_COPY_FILES += \
@@ -191,6 +191,14 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     android.hardware.health-service.qti \
     android.hardware.health-service.qti_recovery
+
+# Kernel (prebuilt) & system DLKM
+PREBUILT_KERNEL_PATH := device/xiaomi/amethyst-kernel
+GKI_VERSION := 6.1.138-android14-11-g0c3d559bcd85-ab14529422
+
+PRODUCT_COPY_FILES += \
+    $(PREBUILT_KERNEL_PATH)/images/kernel:kernel \
+    $(call find-copy-subdir-files,*,$(PREBUILT_KERNEL_PATH)/modules/system_dlkm/$(GKI_VERSION)/,$(TARGET_COPY_OUT_SYSTEM_DLKM)/lib/modules/$(GKI_VERSION)/)
 
 # IPACM
 PRODUCT_PACKAGES += \

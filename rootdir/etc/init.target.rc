@@ -314,9 +314,11 @@ on post-fs-data
     chown system system /sys/module/perf_helper/mimd/mimdtrigger
     # END Performance_BoostFramework
 
-    # Bypass Charging Node
+    # Bypass Charging & Charge Limit Nodes
     chown system system /sys/class/qcom-battery/charge_control_en
     chmod 0660 /sys/class/qcom-battery/charge_control_en
+    chown system system /sys/class/qcom-battery/input_suspend
+    chmod 0660 /sys/class/qcom-battery/input_suspend
 
 on early-boot
     # Enable WLAN cold boot calibration
@@ -351,16 +353,22 @@ on boot
     # Kernel Manager
     chown system system /sys/devices/system/cpu/cpufreq/policy0/scaling_governor
     chown system system /sys/devices/system/cpu/cpufreq/policy4/scaling_governor
+    chown system system /sys/devices/system/cpu/cpufreq/policy7/scaling_governor
     chown system system /sys/devices/system/cpu/cpufreq/policy0/scaling_min_freq
     chown system system /sys/devices/system/cpu/cpufreq/policy0/scaling_max_freq
     chown system system /sys/devices/system/cpu/cpufreq/policy4/scaling_min_freq
     chown system system /sys/devices/system/cpu/cpufreq/policy4/scaling_max_freq
+    chown system system /sys/devices/system/cpu/cpufreq/policy7/scaling_min_freq
+    chown system system /sys/devices/system/cpu/cpufreq/policy7/scaling_max_freq
     chmod 0664 /sys/devices/system/cpu/cpufreq/policy0/scaling_governor
     chmod 0664 /sys/devices/system/cpu/cpufreq/policy4/scaling_governor
+    chmod 0664 /sys/devices/system/cpu/cpufreq/policy7/scaling_governor
     chmod 0664 /sys/devices/system/cpu/cpufreq/policy0/scaling_min_freq
     chmod 0664 /sys/devices/system/cpu/cpufreq/policy0/scaling_max_freq
     chmod 0664 /sys/devices/system/cpu/cpufreq/policy4/scaling_min_freq
     chmod 0664 /sys/devices/system/cpu/cpufreq/policy4/scaling_max_freq
+    chmod 0664 /sys/devices/system/cpu/cpufreq/policy7/scaling_min_freq
+    chmod 0664 /sys/devices/system/cpu/cpufreq/policy7/scaling_max_freq
 
     # GPU Manager
     chown system system /sys/class/kgsl/kgsl-3d0/devfreq/governor
@@ -429,7 +437,9 @@ on boot
 
     #MIUI ADD:Thermal_NodeReq
     chown system system /sys/class/thermal/thermal_message/sconfig
+    chmod 0664 /sys/class/thermal/thermal_message/sconfig
     chown system system /sys/class/thermal/thermal_message/balance_mode
+    chmod 0664 /sys/class/thermal/thermal_message/balance_mode
     chown cameraserver cameraserver /sys/class/thermal/thermal_message/torch_real_level
     chown cameraserver cameraserver /sys/class/thermal/thermal_message/flash_state
     chown system system /sys/class/thermal/thermal_message/charger_temp
@@ -512,6 +522,7 @@ service vendor.per_proxy /vendor/bin/pm-proxy
 
 service vendor.mdm_launcher /vendor/bin/sh /vendor/bin/init.mdm.sh
     class core
+    disabled
     oneshot
 
 on property:init.svc.vendor.per_mgr=running
@@ -557,6 +568,7 @@ service fatal_err_check /vendor/bin/check_fatal_err.sh
     class late_start
     user root
     group root
+    disabled
     oneshot
 
 on property:vendor.bluetooth.startwdsdaemon=true
@@ -602,16 +614,25 @@ on property:vendor.hardware.wlan.runsniffer.circular=start
 service ufs_ffu_service /vendor/bin/sh /vendor/bin/ufs_ffu.sh
     class core
     user root
+    disabled
     oneshot
 
 on property:sys.boot_completed=1
     # Keep tracefs searchable so WebView zygote can reopen inherited trace FDs.
     chmod 0755 /sys/kernel/tracing
 
-    start ufs_ffu_service
+    #start ufs_ffu_service
 
     # Set thermal mode to mgame
-    write /sys/devices/virtual/thermal/thermal_message/sconfig 19
+    write /sys/devices/virtual/thermal/thermal_message/sconfig 20
+
+    # Lower UFS read-ahead after boot to minimize random read latency
+    write /sys/block/sda/queue/read_ahead_kb 128
+    write /sys/block/sdb/queue/read_ahead_kb 128
+    write /sys/block/sdc/queue/read_ahead_kb 128
+    write /sys/block/sdd/queue/read_ahead_kb 128
+    write /sys/block/sde/queue/read_ahead_kb 128
+    write /sys/block/sdf/queue/read_ahead_kb 128
 
     # Enable PowerHAL hint processing
     setprop vendor.powerhal.init 1
