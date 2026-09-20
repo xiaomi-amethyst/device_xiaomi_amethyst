@@ -80,7 +80,7 @@ static bool readBool(int fd) {
 }
 
 static disp_event_resp *parseDispEvent(int fd) {
-  static char buf[1024];
+  alignas(disp_event_resp) static char buf[1024];
   memset(buf, 0, sizeof(buf));
   ssize_t n = read(fd, buf, sizeof(buf));
   if (n < static_cast<ssize_t>(sizeof(disp_event)))
@@ -188,7 +188,7 @@ public:
     mAuthSuccess = true;
     onFingerUp();
     std::thread([this]() {
-      std::this_thread::sleep_for(std::chrono::milliseconds(500));
+      std::this_thread::sleep_for(std::chrono::milliseconds(250));
       mAuthSuccess = false;
     }).detach();
   }
@@ -241,6 +241,10 @@ private:
   void startDispEventThread() {
     std::thread([this]() {
       android::base::unique_fd fd(open(DISP_FEATURE_PATH, O_RDWR));
+      if (fd.get() < 0) {
+        LOG(ERROR) << "Failed to open " DISP_FEATURE_PATH;
+        return;
+      }
 
       disp_event_req fodEvt = {.base = kDisplayPrimary,
                                .type = MI_DISP_EVENT_FOD};
