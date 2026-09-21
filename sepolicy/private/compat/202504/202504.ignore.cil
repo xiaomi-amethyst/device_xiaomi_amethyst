@@ -9,4 +9,5 @@
   ( new_objects
     settingslib_prop
     devicesettings_app
+    hal_bluetooth_coex_service
   ))
