@@ -43,8 +43,8 @@ AUDIO_FEATURE_ENABLED_DLKM := true
 AUDIO_FEATURE_ENABLED_INSTANCE_ID := true
 AUDIO_FEATURE_ENABLED_KEEP_ALIVE := true
 AUDIO_FEATURE_ENABLED_GEF_SUPPORT := true
-AUDIO_FEATURE_ENABLED_SVA_MULTI_STAGE := true
-BOARD_SUPPORTS_SOUND_TRIGGER := true
+AUDIO_FEATURE_ENABLED_SVA_MULTI_STAGE := false
+BOARD_SUPPORTS_SOUND_TRIGGER := false
 TARGET_USES_QCOM_MM_AUDIO := true
 
 TARGET_PROVIDES_AUDIO_HAL := true
@@ -98,6 +98,7 @@ BOARD_INIT_BOOT_HEADER_VERSION := 4
 BOARD_MKBOOTIMG_INIT_ARGS += --header_version $(BOARD_INIT_BOOT_HEADER_VERSION)
 
 BOARD_KERNEL_CMDLINE := \
+    sysctl.kernel.firmware_config.force_sysfs_fallback=1 \
     swinfo.fingerprint=$(LINEAGE_VERSION) \
     mtdoops.fingerprint=$(LINEAGE_VERSION)
 
@@ -107,7 +108,8 @@ BOARD_BOOTCONFIG := \
     androidboot.usbcontroller=a600000.dwc3 \
     androidboot.load_modules_parallel=true \
     androidboot.hypervisor.protected_vm.supported=true \
-    androidboot.vendor.qspa=true
+    androidboot.vendor.qspa=true \
+    androidboot.init_fatal_reboot_target=recovery
 
 # Kernel
 PREBUILT_PATH := $(DEVICE_PATH)-kernel
