@@ -152,7 +152,7 @@
          HAL as a blocking call. In such a case the country code will be applied
          immediately after the country code is sent to the driver (if the method returns a
          success). -->
-    <bool name="config_wifiDriverSupportedNl80211RegChangedEvent" translatable="false">true</bool>
+    <bool name="config_wifiDriverSupportedNl80211RegChangedEvent" translatable="false">false</bool>
 
     <!-- Wifi driver supports Opportunistic Wireless Encryption (OWE) Transition
          aka Enhanced Open for Soft-AP -->
@@ -172,4 +172,7 @@
 
     <!-- Indicates whether the network-centric QoS policy feature is enabled. -->
     <bool name="config_wifiNetworkCentricQosPolicyFeatureEnabled" translatable="false">true</bool>
+
+    <!-- Whether WiFi display is supported during STA+AP concurrency -->
+    <bool name="config_wifiDisplayOverlaysAreSupportedForStaApConcurrency" translatable="false">true</bool>
 </resources>
