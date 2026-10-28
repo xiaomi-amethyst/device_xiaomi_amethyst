@@ -57,6 +57,19 @@ case "$baseband" in
     fi
 
     if [ $modemvalue != "0x1" ] && [ $modemvalue != "0x2" ]; then
+        # Modem firmware updates may remove the active QCRIL database. Seed a
+        # missing or empty database before qcrild starts so IMS can provision
+        # without requiring a HyperOS boot. Preserve every valid existing DB.
+        if [ ! -s /data/vendor/radio/qcrilNr.db ] && [ -s /data/vendor/radio/qcrilNr_prebuilt.db ]; then
+            rm -f /data/vendor/radio/qcrilNr.db-wal
+            rm -f /data/vendor/radio/qcrilNr.db-shm
+            rm -f /data/vendor/radio/qcrilNr.db-journal
+            cp /data/vendor/radio/qcrilNr_prebuilt.db /data/vendor/radio/qcrilNr.db
+            chown radio.radio /data/vendor/radio/qcrilNr.db
+            chmod 0660 /data/vendor/radio/qcrilNr.db
+            restorecon /data/vendor/radio/qcrilNr.db
+        fi
+
         start vendor.qcrild
 
         case "$baseband" in
