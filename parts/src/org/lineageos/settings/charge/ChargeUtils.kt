@@ -19,21 +19,20 @@ package org.lineageos.settings.charge
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
+import android.content.Intent
+import android.os.PowerManager
 import androidx.preference.PreferenceManager
 import org.lineageos.settings.chargelimit.ChargeLimitUtils
 import org.lineageos.settings.utils.FileUtils
 
 class ChargeUtils(context: Context) {
 
+    private val context = context.applicationContext
     private val sharedPrefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
 
     fun isBypassChargeEnabled(): Boolean {
         return try {
-            if (sharedPrefs.getBoolean(ChargeLimitUtils.PREF_PAUSED, false)) {
-                sharedPrefs.getBoolean(PREF_BYPASS_CHARGE, false)
-            } else {
-                FileUtils.readOneLine(BYPASS_CHARGE_NODE) == "1"
-            }
+            sharedPrefs.getBoolean(PREF_BYPASS_CHARGE, false)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to read bypass charge status", e)
             false
@@ -43,11 +42,24 @@ class ChargeUtils(context: Context) {
     fun enableBypassCharge(enable: Boolean) {
         try {
             sharedPrefs.edit().putBoolean(PREF_BYPASS_CHARGE, enable).apply()
-            val limiterPaused = sharedPrefs.getBoolean(ChargeLimitUtils.PREF_PAUSED, false)
-            FileUtils.writeLine(BYPASS_CHARGE_NODE, if (enable || limiterPaused) "1" else "0")
+            val intent = Intent(context, BypassChargeService::class.java)
+            if (enable) context.startService(intent) else {
+                context.stopService(intent)
+                if (!sharedPrefs.getBoolean(ChargeLimitUtils.PREF_PAUSED, false)) {
+                    FileUtils.writeLine(INPUT_SUSPEND_NODE, "0")
+                    FileUtils.writeLine(BYPASS_CHARGE_NODE, "0")
+                }
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to write bypass charge status", e)
         }
+    }
+
+    fun applyBypassState(screenOn: Boolean = context.getSystemService(PowerManager::class.java)?.isInteractive == true) {
+        if (sharedPrefs.getBoolean(ChargeLimitUtils.PREF_PAUSED, false)) return
+        val enabled = sharedPrefs.getBoolean(PREF_BYPASS_CHARGE, false)
+        FileUtils.writeLine(INPUT_SUSPEND_NODE, if (enabled && !screenOn) "1" else "0")
+        FileUtils.writeLine(BYPASS_CHARGE_NODE, if (enabled && screenOn) "1" else "0")
     }
 
     private fun isNodeAccessible(node: String): Boolean {
@@ -67,6 +79,7 @@ class ChargeUtils(context: Context) {
     companion object {
         private const val TAG = "ChargeUtils"
         const val BYPASS_CHARGE_NODE = "/sys/class/qcom-battery/charge_control_en"
+        const val INPUT_SUSPEND_NODE = "/sys/class/qcom-battery/input_suspend"
         const val PREF_BYPASS_CHARGE = "bypass_charge"
     }
 }
